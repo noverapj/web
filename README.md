@@ -76,33 +76,33 @@ No UI kit or component library - everything is hand-rolled Tailwind.
 
 ```
 src/
-??? app/
-?   ??? layout.tsx              # Root layout, fonts, metadata
-?   ??? page.tsx                # Landing page
-?   ??? globals.css             # Tailwind v4 theme tokens + custom utilities
-?   ??? not-found.tsx           # Custom 404
-?   ??? error.tsx               # Error boundary
-?   ??? global-error.tsx        # Root-level error fallback
-?   ??? (auth)/                 # Auth route group (standalone layout)
-?   ?   ??? login/  register/  forgot/
-?   ??? dashboard/              # Dashboard section (bubble sidebar layout)
-?       ??? page.tsx            # Overview
-?       ??? matches/  heroes/  guild/  gashapon/
-?       ??? season-pass/  settings/
-?       ??? webshop/            # + webshop/checkout
-??? components/
-?   ??? navbar, hero, mercenaries, modes, features,
-?   ?   news, ranking, download, footer, reveal   # Landing sections
-?   ??? auth/                   # auth-card, oauth-buttons, forms
-?   ??? dashboard/              # nav-rail, battle-log, matches-browser,
-?                               # season-track, checkout-form, settings-form
-??? data/                       # Mock data layer (see below)
-    ??? heroes.ts               # Hero refs + rarity styles
-    ??? player.ts  matches.ts  guild.ts  gashapon.ts
-    ??? season-pass.ts  webshop.ts  heroes-locker.ts
+|-- app/
+|   |-- layout.tsx              # Root layout, fonts, metadata
+|   |-- page.tsx                # Landing page
+|   |-- globals.css             # Tailwind v4 theme tokens + custom utilities
+|   |-- not-found.tsx           # Custom 404
+|   |-- error.tsx               # Error boundary
+|   |-- global-error.tsx        # Root-level error fallback
+|   |-- (auth)/                 # Auth route group (standalone layout)
+|   |   |-- login/  register/  forgot/
+|   `-- dashboard/              # Dashboard section (bubble sidebar layout)
+|       |-- page.tsx            # Overview
+|       |-- matches/  heroes/  guild/  gashapon/
+|       |-- season-pass/  settings/
+|       `-- webshop/            # + webshop/checkout
+|-- components/
+|   |-- navbar, hero, mercenaries, modes, features,
+|   |   news, ranking, download, footer, reveal   # Landing sections
+|   |-- auth/                   # auth-card, oauth-buttons, forms
+|   `-- dashboard/              # nav-rail, battle-log, matches-browser,
+|                               # season-track, checkout-form, settings-form
+`-- data/                       # Mock data layer (see below)
+    |-- heroes.ts               # Hero refs + rarity styles
+    |-- player.ts  matches.ts  guild.ts  gashapon.ts
+    `-- season-pass.ts  webshop.ts  heroes-locker.ts
 
 public/
-??? heroes/                     # Hero artwork PNGs (scraped)
+`-- heroes/                     # Hero artwork PNGs (scraped)
 ```
 
 ## Getting Started

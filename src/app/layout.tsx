@@ -22,7 +22,14 @@ export const metadata: Metadata = {
   },
   description:
     "NOVERA OSS - a revival of the classic Lost Saga action brawler. Fast-paced PvP, guild wars, gashapon, and 20+ playable mercenaries. Download free now!",
-  keywords: ["Lost Saga", "NOVERA OSS", "action brawler", "PvP", "mercenary", "fighting game"],
+  keywords: [
+    "Lost Saga",
+    "NOVERA OSS",
+    "action brawler",
+    "PvP",
+    "mercenary",
+    "fighting game",
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -30,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${chakra.variable} ${inter.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <Script

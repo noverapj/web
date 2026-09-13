@@ -17,24 +17,24 @@ export default function Navbar({ isAuthenticated }: { isAuthenticated: boolean }
   return (
     <header className="fixed top-0 inset-x-0 z-50 px-3">
       <nav className="glass mx-auto mt-3 flex max-w-6xl items-center justify-between gap-4 rounded-2xl px-4 py-3 sm:px-6">
-        <a href="#hero" className="group flex items-center gap-3">
+        <Link href="#hero" className="group flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-electric via-magenta to-tangerine font-display text-lg font-bold text-white shadow-lg shadow-magenta/30 transition-transform group-hover:scale-105">
             N
           </span>
           <span className="font-display text-lg font-bold tracking-wide">
             NOVERA <span className="text-gradient">OSS</span>
           </span>
-        </a>
+        </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
           {LINKS.map((l) => (
             <li key={l.href}>
-              <a
+              <Link
                 href={l.href}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-mist transition-colors hover:bg-white/5 hover:text-white"
               >
                 {l.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -78,13 +78,13 @@ export default function Navbar({ isAuthenticated }: { isAuthenticated: boolean }
           <ul className="flex flex-col">
             {LINKS.map((l) => (
               <li key={l.href}>
-                <a
+                <Link
                   href={l.href}
                   onClick={() => setOpen(false)}
                   className="block rounded-xl px-4 py-3 text-sm font-semibold text-mist transition-colors hover:bg-white/5 hover:text-white"
                 >
                   {l.label}
-                </a>
+                </Link>
               </li>
             ))}
             <li className="mt-2 border-t border-white/10 pt-3">

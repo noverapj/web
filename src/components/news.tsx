@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HiArrowRight } from "react-icons/hi2";
 import Reveal from "./reveal";
 import SectionHeading from "./section-heading";
@@ -75,13 +76,13 @@ export default function News() {
       </div>
 
       <Reveal className="mt-10 text-center" delay={100}>
-        <a
+        <Link
           href="#news"
           className="inline-flex items-center gap-2 rounded-2xl border-2 border-white/15 px-7 py-3 text-sm font-bold text-mist transition-all hover:-translate-y-0.5 hover:border-white/30 hover:text-white"
         >
           View all patch notes
           <HiArrowRight className="text-base" aria-hidden />
-        </a>
+        </Link>
       </Reveal>
     </section>
   );

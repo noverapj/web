@@ -1,4 +1,5 @@
-import { FaDiscord, FaDownload } from "react-icons/fa";
+import Link from "next/link";
+import { FaDiscord, FaDownload, FaGithub } from "react-icons/fa";
 
 const PARTICLES = [
   { left: "6%", top: "22%", size: 5, color: "rgb(59 107 255 / 0.8)", delay: "0s" },
@@ -79,11 +80,11 @@ export default function Hero() {
 
         {/* CTAs */}
         <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <a href="#download" className="btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-base font-bold text-white sm:w-auto">
+          <Link href="#download" className="btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-base font-bold text-white sm:w-auto">
             <FaDownload className="text-lg" />
             Download Game
-          </a>
-          <a
+          </Link>
+          <Link
             href="https://discord.com"
             target="_blank"
             rel="noopener noreferrer"
@@ -91,7 +92,16 @@ export default function Hero() {
           >
             <FaDiscord className="text-xl" />
             Join Discord
-          </a>
+          </Link>
+          <Link
+            href="https://github.com/noverapj"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-white/15 bg-white/5 px-8 py-4 text-base font-bold text-mist backdrop-blur transition-all hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 hover:text-white sm:w-auto"
+          >
+            <FaGithub className="text-xl" />
+            View Source
+          </Link>
         </div>
 
         {/* quick stats */}

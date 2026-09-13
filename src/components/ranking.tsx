@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { IconType } from "react-icons";
 import { HiArrowRight } from "react-icons/hi2";
 import {
@@ -83,13 +84,13 @@ export default function Ranking() {
       </Reveal>
 
       <Reveal className="mt-10 text-center" delay={100}>
-        <a
+        <Link
           href="#ranking"
           className="btn-gradient inline-flex items-center gap-2 rounded-2xl px-7 py-3 text-sm font-bold text-white"
         >
           View Full Ranking
           <HiArrowRight className="text-base" aria-hidden />
-        </a>
+        </Link>
       </Reveal>
     </section>
   );

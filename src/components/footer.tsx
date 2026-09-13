@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaDiscord, FaFacebook } from "react-icons/fa";
 
 const LINK_GROUPS = [
@@ -34,21 +35,21 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           {/* brand */}
           <div>
-            <a href="#hero" className="flex items-center gap-3">
+            <Link href="#hero" className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-electric via-magenta to-tangerine font-display text-lg font-bold text-white shadow-lg shadow-magenta/30">
                 N
               </span>
               <span className="font-display text-lg font-bold tracking-wide">
                 NOVERA <span className="text-gradient">OSS</span>
               </span>
-            </a>
+            </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-mist">
               A community revival of the classic mercenary brawler Lost Saga.
               Built by veterans, for veterans — and everyone brave enough to
               join the arena.
             </p>
             <div className="mt-5 flex gap-3">
-              <a
+              <Link
                 href="https://discord.com"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -56,8 +57,8 @@ export default function Footer() {
                 className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 transition-all hover:-translate-y-0.5 hover:border-electric/50 hover:bg-electric/15"
               >
                 <FaDiscord className="text-lg text-mist" aria-hidden />
-              </a>
-              <a
+              </Link>
+              <Link
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -65,7 +66,7 @@ export default function Footer() {
                 className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 transition-all hover:-translate-y-0.5 hover:border-electric/50 hover:bg-electric/15"
               >
                 <FaFacebook className="text-lg text-mist" aria-hidden />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -78,13 +79,13 @@ export default function Footer() {
               <ul className="mt-4 space-y-2.5">
                 {g.links.map((l) => (
                   <li key={l.label}>
-                    <a
+                    <Link
                       href={l.href}
                       {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className="text-sm text-mist transition-colors hover:text-white"
                     >
                       {l.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaDownload } from "react-icons/fa";
 import Reveal from "./reveal";
 import SectionHeading from "./section-heading";
@@ -67,10 +68,10 @@ export default function Download() {
               </table>
             </div>
 
-            <a href="#download" className="btn-gradient mt-7 flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-base font-bold text-white">
+            <Link href="#download" className="btn-gradient mt-7 flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-base font-bold text-white">
               <FaDownload className="text-lg" aria-hidden />
               Download for Windows — Free
-            </a>
+            </Link>
             <p className="mt-3 text-center text-xs text-dim">
               v2.4.1 • 1.2 GB • Full patcher included
             </p>

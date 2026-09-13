@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { LosaGameDB } from "@/db";
 import { LoginSchema, RegistSchema } from "@/schemas/auth";
-import { generateRandomStringWithSalt } from "@/utils/generator";
+import { registerAccount } from "@/server/auth";
 import { createSessionToken } from "@/utils/session";
 
 export type AuthState = { error?: string; message?: string };
@@ -83,99 +83,17 @@ export async function registerAction(
     return { error: "Invalid Request" };
   }
 
-  const payload = parsed.data;
+const payload = parsed.data;
 
-  const existUser = await LosaGameDB.selectFrom("userMemberDB")
-    .where("userID", "=", payload.username)
-    .selectAll()
-    .executeTakeFirst();
+  const result = await registerAccount({
+    email: payload.email,
+    username: payload.username,
+    nickName: payload.nickName,
+    password: payload.password,
+  });
 
-  const existEmail = await LosaGameDB.selectFrom("userMemberDB")
-    .where("email", "=", payload.email)
-    .selectAll()
-    .executeTakeFirst();
-
-  const existNickname = await LosaGameDB.selectFrom("userMemberDB")
-    .where("nickName", "=", payload.nickName)
-    .selectAll()
-    .executeTakeFirst();
-
-  if (existUser || existNickname || existEmail) {
-    return { error: "Username or Email or Nickname already registered." };
-  }
-
-  const generatedKey = generateRandomStringWithSalt(
-    payload.username + payload.nickName,
-  );
-
-  try {
-    await LosaGameDB.transaction().execute(async (trx) => {
-      const newUser = await trx
-        .insertInto("userMemberDB")
-        .values({
-          email: payload.email,
-          userID: payload.username,
-          nickName: payload.nickName,
-          userPWD: payload.password,
-          joinType: 100,
-          userType: 10,
-          mailling: 0,
-        })
-        .outputAll("inserted")
-        .executeTakeFirst();
-
-      const newAaccountIDX = newUser?.accountIDX;
-
-      await trx
-        .insertInto("userInfoDB")
-        .values({
-          accountIDX: newAaccountIDX!,
-          userIP: "0.0.0.0",
-          visit_count: 0,
-          checkDate: new Date(),
-          rec_dec: 0,
-          rec_inc: 0,
-          rec_index: 0,
-        })
-        .execute();
-
-      await trx
-        .insertInto("userRecordBattleDB")
-        .values({
-          accountIDX: newAaccountIDX!,
-        })
-        .execute();
-
-      await trx
-        .insertInto("userCashDB")
-        .values({
-          accountIDX: newAaccountIDX!,
-          amtBonus: 0,
-          amtCash: 10_000_000,
-          amtLimit: 99999999,
-          amtSum: 10_000_000,
-        })
-        .execute();
-
-      await trx
-        .insertInto("userGameDB")
-        .values({
-          accountIDX: newAaccountIDX!,
-          gameMoney: 10_000_000,
-        })
-        .execute();
-
-      await trx
-        .insertInto("userLoginDB")
-        .values({
-          accountIDX: newAaccountIDX!,
-          encodeKey: generateRandomStringWithSalt(generatedKey),
-        })
-        .execute();
-    });
-  } catch (error) {
-    console.error(error);
-    return { error: "Failed to Register" };
+  if (!result.ok) {
+    return { error: result.error };
   }
 
   await setSessionCookie(payload.username, false);

@@ -1670,6 +1670,15 @@ export interface UserOakBarrelDB {
   UpdateTime: Generated<Date>;
 }
 
+export interface UserOAuthDB {
+  idx: Generated<number>;
+  accountIDX: number;
+  provider: string;
+  providerUserID: string;
+  email: string | null;
+  regDate: Generated<Date>;
+}
+
 export interface UserParentDB {
   accountIDX: number;
   agreeEDate: Date | null;
@@ -2499,6 +2508,7 @@ export interface LosaGame {
   userMissionDB: UserMissionDB;
   userNameDB: UserNameDB;
   userOakBarrelDB: UserOakBarrelDB;
+  userOAuthDB: UserOAuthDB;
   userParentDB: UserParentDB;
   userPCBangPlayTimeDB: UserPCBangPlayTimeDB;
   userPCBangPregentDB: UserPCBangPregentDB;

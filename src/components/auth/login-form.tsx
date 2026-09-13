@@ -1,29 +1,33 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useActionState, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { HiEye, HiEyeSlash, HiLockClosed, HiUser } from "react-icons/hi2";
 import OAuthButtons from "./oauth-buttons";
+import { loginAction } from "@/actions/auth";
 
 export default function LoginForm() {
-  const router = useRouter();
+  const [state, formAction, pending] = useActionState(loginAction, { error: "" });
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const displayError = error || state.error;
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     if (!username.trim() || !password) {
+      e.preventDefault();
       setError("Please enter your username and password.");
       return;
     }
+    if (password.length < 8) {
+      e.preventDefault();
+      setError("Password must be at least 8 characters.");
+      return;
+    }
     setError("");
-    setLoading(true);
-    setTimeout(() => router.push("/dashboard"), 900);
   };
 
   return (
@@ -38,10 +42,10 @@ export default function LoginForm() {
         <span className="h-px flex-1 bg-white/10" />
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        {error && (
+      <form action={formAction} onSubmit={onSubmit} className="space-y-4" noValidate>
+        {displayError && (
           <p className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-center text-xs font-semibold text-red-400">
-            {error}
+            {displayError}
           </p>
         )}
 
@@ -53,6 +57,7 @@ export default function LoginForm() {
             <HiUser className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-dim" aria-hidden />
             <input
               type="text"
+              name="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
@@ -70,6 +75,7 @@ export default function LoginForm() {
             <HiLockClosed className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-dim" aria-hidden />
             <input
               type={showPassword ? "text" : "password"}
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -113,6 +119,7 @@ export default function LoginForm() {
               Remember me
             </span>
           </button>
+          <input type="hidden" name="rememberMe" value={remember ? "true" : ""} />
           <Link href="/forgot" className="text-xs font-semibold text-ice transition-colors hover:text-white">
             Forgot password?
           </Link>
@@ -120,10 +127,10 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={pending}
           className="btn-gradient w-full rounded-full px-6 py-3.5 text-sm font-bold text-white disabled:opacity-60"
         >
-          {loading ? "Signing in…" : "Sign In"}
+          {pending ? "Signing in…" : "Sign In"}
         </button>
       </form>
 

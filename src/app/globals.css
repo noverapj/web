@@ -164,9 +164,3 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
-  .particle, .streak, .animate-bubble, .animate-blob { animation: none; }
-}

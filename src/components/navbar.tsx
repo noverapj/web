@@ -8,11 +8,10 @@ const LINKS = [
   { href: "#modes", label: "Game Modes" },
   { href: "#news", label: "Patch Notes" },
   { href: "#ranking", label: "Ranking" },
-  { href: "/dashboard", label: "Dashboard" },
   { href: "#download", label: "Download" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -41,12 +40,21 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="btn-gradient hidden rounded-xl px-4 py-2 text-sm font-bold text-white sm:block sm:px-5"
-          >
-            Sign In
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              className="btn-gradient hidden rounded-xl px-4 py-2 text-sm font-bold text-white sm:block sm:px-5"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="btn-gradient hidden rounded-xl px-4 py-2 text-sm font-bold text-white sm:block sm:px-5"
+            >
+              Sign In
+            </Link>
+          )}
           <button
             type="button"
             aria-label="Open menu"
@@ -81,11 +89,11 @@ export default function Navbar() {
             ))}
             <li className="mt-2 border-t border-white/10 pt-3">
               <Link
-                href="/login"
+                href={isAuthenticated ? "/dashboard" : "/login"}
                 onClick={() => setOpen(false)}
                 className="btn-gradient block rounded-xl px-4 py-3 text-center text-sm font-bold text-white"
               >
-                Sign In
+                {isAuthenticated ? "Dashboard" : "Sign In"}
               </Link>
             </li>
           </ul>

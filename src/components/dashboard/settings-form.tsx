@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import Image from "next/image";
 import { HiArrowRightOnRectangle, HiExclamationTriangle } from "react-icons/hi2";
 import { heroByName } from "@/data/heroes";
-import { PLAYER } from "@/data/player";
+import { updateProfileAction } from "@/actions/settings";
+import { signOutAction } from "@/actions/auth";
+import type { SettingsData } from "@/types/settings";
 
 type ToggleKey = "notifications" | "guildInvites" | "friendRequests" | "spectators";
 
@@ -46,15 +48,15 @@ function Toggle({
   );
 }
 
-export default function SettingsForm() {
+export default function SettingsForm({ data }: { data: SettingsData }) {
   const hero = heroByName("Kage Ninja");
+  const [state, formAction, pending] = useActionState(updateProfileAction, {});
   const [toggles, setToggles] = useState<Record<ToggleKey, boolean>>({
     notifications: true,
     guildInvites: true,
     friendRequests: false,
     spectators: true,
   });
-  const [saved, setSaved] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -71,29 +73,43 @@ export default function SettingsForm() {
               className="object-contain object-bottom drop-shadow-[0_10px_24px_rgba(122_59_255/0.4)]"
             />
           </div>
-          <div className="grid flex-1 gap-4 sm:grid-cols-2">
+          <form action={formAction} className="grid flex-1 gap-4 sm:grid-cols-2">
+            {state.error && (
+              <p className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-center text-xs font-semibold text-red-400 sm:col-span-2">
+                {state.error}
+              </p>
+            )}
             <label className="block">
               <span className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-dim">
                 Username
               </span>
               <input
-                defaultValue={PLAYER.name}
+                defaultValue={data.username}
+                readOnly
+                disabled
+                className="w-full cursor-not-allowed rounded-xl border border-white/10 bg-abyss-2/40 px-4 py-2.5 text-sm font-semibold text-white/50 outline-none"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-dim">
+                Nickname
+              </span>
+              <input
+                name="nickName"
+                defaultValue={data.nickName}
                 className="w-full rounded-xl border border-white/10 bg-abyss-2/70 px-4 py-2.5 text-sm font-semibold text-white outline-none focus:border-electric/60"
               />
             </label>
             <label className="block">
               <span className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-dim">
-                Title
+                Email
               </span>
-              <select
-                defaultValue={PLAYER.title}
-                className="w-full rounded-xl border border-white/10 bg-abyss-2/70 px-4 py-2.5 text-sm font-semibold text-white outline-none focus:border-electric/60"
-              >
-                <option>{PLAYER.title}</option>
-                <option>Rising Blade</option>
-                <option>Arena Menace</option>
-                <option>Guild Warrior</option>
-              </select>
+              <input
+                defaultValue={data.email}
+                readOnly
+                disabled
+                className="w-full cursor-not-allowed rounded-xl border border-white/10 bg-abyss-2/40 px-4 py-2.5 text-sm font-semibold text-white/50 outline-none"
+              />
             </label>
             <label className="block">
               <span className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-dim">
@@ -108,19 +124,16 @@ export default function SettingsForm() {
                 <option value="kr">한국어</option>
               </select>
             </label>
-            <div className="flex items-end">
+            <div className="flex items-end sm:col-start-2">
               <button
-                type="button"
-                onClick={() => {
-                  setSaved(true);
-                  setTimeout(() => setSaved(false), 1600);
-                }}
-                className="btn-gradient w-full rounded-xl px-6 py-2.5 text-sm font-bold text-white"
+                type="submit"
+                disabled={pending}
+                className="btn-gradient w-full rounded-xl px-6 py-2.5 text-sm font-bold text-white disabled:opacity-60"
               >
-                {saved ? "Saved!" : "Save Changes"}
+                {pending ? "Saving…" : state.message ? "Saved!" : "Save Changes"}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </section>
 
@@ -149,13 +162,15 @@ export default function SettingsForm() {
         <h2 className="font-display text-lg font-bold text-white">Account</h2>
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-xl border-2 border-white/15 px-5 py-2.5 text-sm font-bold text-mist transition-all hover:border-white/30 hover:text-white"
-            >
-              <HiArrowRightOnRectangle className="text-base" aria-hidden />
-              Sign Out
-            </button>
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-xl border-2 border-white/15 px-5 py-2.5 text-sm font-bold text-mist transition-all hover:border-white/30 hover:text-white"
+              >
+                <HiArrowRightOnRectangle className="text-base" aria-hidden />
+                Sign Out
+              </button>
+            </form>
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-xl border-2 border-red-500/40 bg-red-500/10 px-5 py-2.5 text-sm font-bold text-red-400 transition-all hover:border-red-500/70 hover:bg-red-500/20"

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { HiCalendarDays, HiUserGroup } from "react-icons/hi2";
+import { redirect } from "next/navigation";
+import { HiUserGroup } from "react-icons/hi2";
 import { GiShield } from "react-icons/gi";
-import { heroByName } from "@/data/heroes";
-import { GUILD, NEXT_GUILD_WAR, RECENT_WARS, ROSTER } from "@/data/guild";
+import { getSessionUserID } from "@/server/dashboard";
+import { getGuildData } from "@/server/guild";
 
 export const metadata: Metadata = {
   title: "Guild",
@@ -14,8 +15,11 @@ const ROLE_STYLES: Record<string, string> = {
   Member: "border-white/10 bg-white/5 text-mist",
 };
 
-export default function GuildPage() {
-  const gpPct = Math.round((GUILD.gp / GUILD.gpNext) * 100);
+export default async function GuildPage() {
+  const userID = await getSessionUserID();
+  if (!userID) redirect("/login");
+
+  const { guild, roster, warRecord } = await getGuildData(userID);
 
   return (
     <div>
@@ -25,142 +29,156 @@ export default function GuildPage() {
       </header>
 
       <div className="space-y-6">
-        {/* guild banner */}
-        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-panel/60 backdrop-blur">
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ background: "radial-gradient(ellipse 60% 100% at 0% 0%, rgb(59 107 255/0.2), transparent 70%), radial-gradient(ellipse 50% 90% at 100% 100%, rgb(226 59 255/0.14), transparent 70%)" }}
-            aria-hidden
-          />
-          <div className="relative flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center">
-            <span className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-electric to-magenta shadow-xl shadow-magenta/25">
-              <GiShield className="text-4xl text-white" aria-hidden />
+        {!guild ? (
+          <section className="rounded-2xl border border-white/10 bg-panel/60 p-10 text-center backdrop-blur">
+            <span className="mx-auto grid h-20 w-20 place-items-center rounded-2xl border border-white/10 bg-white/5">
+              <GiShield className="text-4xl text-dim" aria-hidden />
             </span>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display text-2xl font-bold text-white sm:text-3xl">
-                {GUILD.name} <span className="text-ice">[{GUILD.tag}]</span>
-              </h2>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-mist">{GUILD.description}</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <span className="rounded-xl border border-white/10 bg-abyss-2/70 px-3.5 py-2 text-sm font-bold text-white">
-                  Lv {GUILD.level}
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-abyss-2/70 px-3.5 py-2 text-sm text-mist">
-                  <HiUserGroup className="text-lg text-ice" aria-hidden />
-                  {GUILD.memberCount} / {GUILD.memberCap} members
-                </span>
-                <button type="button" className="btn-gradient rounded-xl px-5 py-2 text-sm font-bold text-white">
-                  Invite Friends
-                </button>
-              </div>
-            </div>
-          </div>
-          {/* GP bar */}
-          <div className="relative border-t border-white/10 p-6 sm:px-8">
-            <div className="flex items-center justify-between text-xs text-dim">
-              <span>Guild Points</span>
-              <span>
-                {GUILD.gp.toLocaleString("en-US")} / {GUILD.gpNext.toLocaleString("en-US")}
-              </span>
-            </div>
-            <div className="mt-1.5 h-3 overflow-hidden rounded-full border border-white/10 bg-abyss-2">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-electric via-magenta to-tangerine shadow-[0_0_14px_rgb(226_59_255/0.45)]"
-                style={{ width: `${gpPct}%` }}
-              />
-            </div>
-          </div>
-        </section>
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* roster */}
-          <section className="overflow-hidden rounded-2xl border border-white/10 bg-panel/60 backdrop-blur lg:col-span-2">
-            <h2 className="border-b border-white/10 px-6 py-4 font-display text-lg font-bold text-white">
-              Roster
-            </h2>
-            <ol>
-              {ROSTER.map((m) => {
-                const hero = heroByName(m.hero);
-                return (
-                  <li
-                    key={m.name}
-                    className="flex items-center gap-3 border-b border-white/5 px-6 py-3.5 transition-colors last:border-0 hover:bg-white/[0.04]"
-                  >
-                    <span className="relative flex h-2.5 w-2.5 shrink-0" title={m.online ? "Online" : "Offline"}>
-                      <span className={`h-2.5 w-2.5 rounded-full ${m.online ? "bg-mint shadow-[0_0_8px_rgb(59_251_176/0.8)]" : "bg-white/15"}`} />
-                    </span>
-                    <span className={`min-w-0 flex-1 truncate font-display text-sm font-bold ${m.name === "VanguardX" ? "text-gradient" : "text-white"}`}>
-                      {m.name}
-                    </span>
-                    <span
-                      className={`hidden rounded-full border px-2.5 py-0.5 text-[11px] font-bold sm:inline-block ${ROLE_STYLES[m.role]}`}
-                    >
-                      {m.role}
-                    </span>
-                    <span className="hidden items-center gap-2 text-sm text-mist md:flex" title={m.hero}>
-                      <hero.icon className="text-lg" aria-hidden />
-                      <span className="w-28 truncate">{m.hero}</span>
-                    </span>
-                    <span className="shrink-0 font-display text-sm font-bold text-ice">
-                      {m.contribution.toLocaleString("en-US")}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
+            <h2 className="mt-5 font-display text-xl font-bold text-white">You&apos;re not in a guild</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mist">
+              Join a guild to run Guild Wars, climb the leaderboard, and team up with fellow
+              mercenaries.
+            </p>
+            <button
+              type="button"
+              className="btn-gradient mt-6 rounded-xl px-6 py-2.5 text-sm font-bold text-white"
+            >
+              Browse Guilds
+            </button>
           </section>
-
-          {/* schedule + recent wars */}
-          <div className="space-y-6">
-            <section className="card-glow relative overflow-hidden rounded-2xl border border-tangerine/25 bg-panel/60 p-6 backdrop-blur">
+        ) : (
+          <>
+            {/* guild banner */}
+            <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-panel/60 backdrop-blur">
               <div
                 className="pointer-events-none absolute inset-0"
-                style={{ background: "radial-gradient(ellipse 80% 60% at 100% 0%, rgb(255 138 42/0.12), transparent 70%)" }}
+                style={{ background: "radial-gradient(ellipse 60% 100% at 0% 0%, rgb(59 107 255/0.2), transparent 70%), radial-gradient(ellipse 50% 90% at 100% 100%, rgb(226 59 255/0.14), transparent 70%)" }}
                 aria-hidden
               />
-              <h2 className="relative font-display text-lg font-bold text-white">Next Guild War</h2>
-              <div className="relative mt-4 space-y-3">
-                <p className="inline-flex items-center gap-2 text-sm text-mist">
-                  <HiCalendarDays className="text-lg text-tangerine" aria-hidden />
-                  {NEXT_GUILD_WAR.date} · {NEXT_GUILD_WAR.time}
-                </p>
-                <p className="font-display text-xl font-bold text-white">
-                  vs {NEXT_GUILD_WAR.opponent}
-                </p>
-                <p className="text-sm font-semibold text-tangerine">
-                  In {NEXT_GUILD_WAR.inDays} days — get your line-up ready
-                </p>
-                <button type="button" className="btn-gradient mt-1 w-full rounded-xl px-4 py-2.5 text-sm font-bold text-white">
-                  Set Reminder
-                </button>
+              <div className="relative flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center">
+                <span className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-electric to-magenta shadow-xl shadow-magenta/25">
+                  <GiShield className="text-4xl text-white" aria-hidden />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-display text-2xl font-bold text-white sm:text-3xl">
+                    {guild.name}
+                  </h2>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-mist">
+                    {guild.description || "No guild description yet."}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <span className="rounded-xl border border-white/10 bg-abyss-2/70 px-3.5 py-2 text-sm font-bold text-white">
+                      Lv {guild.level}
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-abyss-2/70 px-3.5 py-2 text-sm text-mist">
+                      <HiUserGroup className="text-lg text-ice" aria-hidden />
+                      {guild.memberCount} / {guild.memberCap} members
+                    </span>
+                    {guild.ranking > 0 && (
+                      <span className="rounded-xl border border-white/10 bg-abyss-2/70 px-3.5 py-2 text-sm font-bold text-tangerine">
+                        Rank #{guild.ranking}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {/* guild stats */}
+              <div className="relative grid grid-cols-2 gap-4 border-t border-white/10 p-6 sm:px-8 lg:grid-cols-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-dim">Guild Points</p>
+                  <p className="mt-1 font-display text-xl font-bold text-white">
+                    {guild.point.toLocaleString("en-US")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-dim">Points Today</p>
+                  <p className="mt-1 font-display text-xl font-bold text-tangerine">
+                    {guild.todayPoint.toLocaleString("en-US")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-dim">VC Today</p>
+                  <p className="mt-1 font-display text-xl font-bold text-white">
+                    {guild.todayVc.toLocaleString("en-US")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-dim">VC Total</p>
+                  <p className="mt-1 font-display text-xl font-bold text-ice">
+                    {guild.totalVc.toLocaleString("en-US")}
+                  </p>
+                </div>
               </div>
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-panel/60 p-6 backdrop-blur">
-              <h2 className="font-display text-lg font-bold text-white">Recent Wars</h2>
-              <ul className="mt-4 space-y-3">
-                {RECENT_WARS.map((w) => (
-                  <li key={w.date + w.opponent} className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-abyss-2/50 px-4 py-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-white">{w.opponent}</p>
-                      <p className="text-xs text-dim">{w.date}</p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span className="font-display text-sm font-bold text-mist">{w.score}</span>
-                      <span
-                        className={`rounded-lg px-2.5 py-1 font-display text-xs font-bold ${
-                          w.result === "win" ? "bg-mint/15 text-mint" : "bg-red-500/15 text-red-400"
-                        }`}
+            <div className="grid gap-6 lg:grid-cols-3">
+              {/* roster */}
+              <section className="overflow-hidden rounded-2xl border border-white/10 bg-panel/60 backdrop-blur lg:col-span-2">
+                <h2 className="border-b border-white/10 px-6 py-4 font-display text-lg font-bold text-white">
+                  Roster
+                </h2>
+                {roster.length === 0 ? (
+                  <p className="px-6 py-8 text-sm text-dim">No members found.</p>
+                ) : (
+                  <ol>
+                    {roster.map((m) => (
+                      <li
+                        key={m.nickName}
+                        className="flex items-center gap-3 border-b border-white/5 px-6 py-3.5 transition-colors last:border-0 hover:bg-white/[0.04]"
                       >
-                        {w.result === "win" ? "WIN" : "LOSS"}
-                      </span>
+                        <span className="min-w-0 flex-1 truncate font-display text-sm font-bold text-white">
+                          {m.nickName}
+                        </span>
+                        <span
+                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
+                            ROLE_STYLES[m.role] ?? ROLE_STYLES.Member
+                          }`}
+                        >
+                          {m.role}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </section>
+
+              {/* guild war record */}
+              <section className="card-glow relative overflow-hidden rounded-2xl border border-white/10 bg-panel/60 p-6 backdrop-blur">
+                <h2 className="font-display text-lg font-bold text-white">Guild War Record</h2>
+                {!warRecord ? (
+                  <p className="mt-5 text-sm text-dim">No guild war battles recorded yet.</p>
+                ) : (
+                  <div className="mt-5 grid grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-mint/20 bg-mint/5 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-dim">Wins</p>
+                      <p className="mt-1 font-display text-2xl font-bold text-mint">
+                        {warRecord.win.toLocaleString("en-US")}
+                      </p>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        </div>
+                    <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-dim">Losses</p>
+                      <p className="mt-1 font-display text-2xl font-bold text-red-400">
+                        {warRecord.lose.toLocaleString("en-US")}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-dim">Kills</p>
+                      <p className="mt-1 font-display text-2xl font-bold text-tangerine">
+                        {warRecord.kill.toLocaleString("en-US")}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-dim">Deaths</p>
+                      <p className="mt-1 font-display text-2xl font-bold text-white/70">
+                        {warRecord.death.toLocaleString("en-US")}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </section>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import MatchesBrowser from "@/components/dashboard/matches-browser";
-import { MATCHES } from "@/data/matches";
+import { getSessionUserID } from "@/server/dashboard";
+import { getBattleLogs } from "@/server/matches";
 
 export const metadata: Metadata = {
   title: "Match History",
 };
 
-export default function MatchesPage() {
+export default async function MatchesPage() {
+  const userID = await getSessionUserID();
+  if (!userID) redirect("/login");
+
+  const data = await getBattleLogs(userID);
+  if (!data) redirect("/login");
+
   return (
     <div>
       <header className="mb-6">
@@ -16,7 +24,7 @@ export default function MatchesPage() {
           Every duel, raid, and guild war — filtered your way.
         </p>
       </header>
-      <MatchesBrowser matches={MATCHES} />
+      <MatchesBrowser rows={data.rows} total={data.total} />
     </div>
   );
 }

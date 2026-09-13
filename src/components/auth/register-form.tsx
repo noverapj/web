@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useActionState, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { HiEye, HiEyeSlash, HiLockClosed, HiUser, HiEnvelope } from "react-icons/hi2";
+import { HiEye, HiEyeSlash, HiIdentification, HiLockClosed, HiUser, HiEnvelope } from "react-icons/hi2";
 import OAuthButtons from "./oauth-buttons";
+import { registerAction } from "@/actions/auth";
 
 function strengthOf(password: string): 0 | 1 | 2 | 3 {
   if (!password) return 0;
@@ -19,39 +19,43 @@ const STRENGTH_LABELS = ["Too short", "Weak", "Good", "Strong"];
 const STRENGTH_COLORS = ["bg-white/10", "bg-red-400", "bg-tangerine", "bg-mint"];
 
 export default function RegisterForm() {
-  const router = useRouter();
+  const [state, formAction, pending] = useActionState(registerAction, {
+    error: "",
+  });
   const [username, setUsername] = useState("");
+  const [nickName, setNickName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [terms, setTerms] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
+  const displayError = error || state.error;
   const strength = useMemo(() => strengthOf(password), [password]);
 
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!username.trim() || !email.trim() || !password || !confirm) {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    if (!username.trim() || !nickName.trim() || !email.trim() || !password || !confirm) {
+      e.preventDefault();
       setError("Please fill in all fields.");
       return;
     }
     if (password.length < 8) {
+      e.preventDefault();
       setError("Password must be at least 8 characters.");
       return;
     }
     if (password !== confirm) {
+      e.preventDefault();
       setError("Passwords do not match.");
       return;
     }
     if (!terms) {
+      e.preventDefault();
       setError("Please accept the Terms of Service to continue.");
       return;
     }
     setError("");
-    setLoading(true);
-    setTimeout(() => router.push("/dashboard"), 900);
   };
 
   return (
@@ -66,10 +70,10 @@ export default function RegisterForm() {
         <span className="h-px flex-1 bg-white/10" />
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        {error && (
+      <form action={formAction} onSubmit={onSubmit} className="space-y-4" noValidate>
+        {displayError && (
           <p className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-center text-xs font-semibold text-red-400">
-            {error}
+            {displayError}
           </p>
         )}
 
@@ -82,6 +86,7 @@ export default function RegisterForm() {
               <HiUser className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-dim" aria-hidden />
               <input
                 type="text"
+                name="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"
@@ -99,6 +104,7 @@ export default function RegisterForm() {
               <HiEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-dim" aria-hidden />
               <input
                 type="email"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -111,12 +117,31 @@ export default function RegisterForm() {
 
         <label className="block">
           <span className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-dim">
+            Nickname
+          </span>
+          <span className="relative block">
+            <HiIdentification className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-dim" aria-hidden />
+            <input
+              type="text"
+              name="nickName"
+              value={nickName}
+              onChange={(e) => setNickName(e.target.value)}
+              autoComplete="nickname"
+              placeholder="ShadowStrike"
+              className="w-full rounded-full border border-white/10 bg-abyss-2/70 py-3 pl-11 pr-5 text-sm font-semibold text-white outline-none transition-colors placeholder:text-dim/50 focus:border-electric/60 focus:shadow-[0_0_18px_rgb(59_107_255/0.2)]"
+            />
+          </span>
+        </label>
+
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-dim">
             Password
           </span>
           <span className="relative block">
             <HiLockClosed className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-dim" aria-hidden />
             <input
               type={showPassword ? "text" : "password"}
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
@@ -202,10 +227,10 @@ export default function RegisterForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={pending}
           className="btn-gradient w-full rounded-full px-6 py-3.5 text-sm font-bold text-white disabled:opacity-60"
         >
-          {loading ? "Creating account…" : "Create Account"}
+          {pending ? "Creating account…" : "Create Account"}
         </button>
       </form>
 

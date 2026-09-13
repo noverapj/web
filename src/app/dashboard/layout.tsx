@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import NavRail from "@/components/dashboard/nav-rail";
+import { getSessionUserID } from "@/server/dashboard";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: LayoutProps<"/dashboard">) {
+  const userID = await getSessionUserID();
+  if (!userID) redirect("/login");
+
   return (
     <div className="relative min-h-screen">
       {/* backdrop */}

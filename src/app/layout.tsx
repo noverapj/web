@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Chakra_Petch, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -29,6 +30,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${chakra.variable} ${inter.variable} h-full antialiased`}
     >
+      <head>
+        <Script
+          id="adsense"
+          strategy="afterInteractive"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

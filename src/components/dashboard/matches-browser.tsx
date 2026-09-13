@@ -2,27 +2,34 @@
 
 import { useMemo, useState } from "react";
 import { HiFunnel } from "react-icons/hi2";
-import BattleLog from "@/components/dashboard/battle-log";
-import type { Match } from "@/data/matches";
+import { BattleLogRow } from "@/components/dashboard/battle-history";
+import { MODE_TYPE_NAMES, type BattleHistoryRow } from "@/types/dashboard";
 
-type ResultFilter = "all" | "win" | "loss";
+type ResultFilter = "all" | "win" | "loss" | "draw";
 
-export default function MatchesBrowser({ matches }: { matches: Match[] }) {
+const RESULT_LABELS: { key: ResultFilter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "win", label: "Victories" },
+  { key: "loss", label: "Defeats" },
+  { key: "draw", label: "Draws" },
+];
+
+export default function MatchesBrowser({
+  rows,
+  total,
+}: {
+  rows: BattleHistoryRow[];
+  total: number;
+}) {
   const [result, setResult] = useState<ResultFilter>("all");
   const [mode, setMode] = useState("all");
-  const [hero, setHero] = useState("all");
 
-  const modes = useMemo(() => Array.from(new Set(matches.map((m) => m.mode))), [matches]);
-  const heroesUsed = useMemo(
-    () => Array.from(new Set(matches.map((m) => m.hero))),
-    [matches],
-  );
+  const modes = useMemo(() => Object.values(MODE_TYPE_NAMES), []);
 
-  const filtered = matches.filter(
+  const filtered = rows.filter(
     (m) =>
       (result === "all" || m.result === result) &&
-      (mode === "all" || m.mode === mode) &&
-      (hero === "all" || m.hero === hero),
+      (mode === "all" || (MODE_TYPE_NAMES[m.modeType] ?? `Mode ${m.modeType}`) === mode),
   );
 
   const wins = filtered.filter((m) => m.result === "win").length;
@@ -39,13 +46,7 @@ export default function MatchesBrowser({ matches }: { matches: Match[] }) {
 
           {/* result chips */}
           <div className="flex gap-2">
-            {(
-              [
-                { key: "all", label: "All" },
-                { key: "win", label: "Victories" },
-                { key: "loss", label: "Defeats" },
-              ] as const
-            ).map((r) => (
+            {RESULT_LABELS.map((r) => (
               <button
                 key={r.key}
                 type="button"
@@ -77,39 +78,37 @@ export default function MatchesBrowser({ matches }: { matches: Match[] }) {
               ))}
             </select>
           </label>
-
-          {/* hero select */}
-          <label className="flex items-center gap-2 text-xs text-dim">
-            Hero
-            <select
-              value={hero}
-              onChange={(e) => setHero(e.target.value)}
-              className="rounded-xl border border-white/10 bg-abyss-2 px-3 py-1.5 text-sm text-white outline-none focus:border-electric/50"
-            >
-              <option value="all">All heroes</option>
-              {heroesUsed.map((h) => (
-                <option key={h} value={h}>
-                  {h}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
       </div>
 
       {/* count */}
       <p className="text-sm text-dim">
         Showing <span className="font-bold text-white">{filtered.length}</span> of{" "}
-        {matches.length} matches ·{" "}
+        {total} battles ·{" "}
         <span className="font-bold text-mint">{wins} W</span> /{" "}
-        <span className="font-bold text-red-400">{filtered.length - wins} L</span>
+        <span className="font-bold text-red-400">
+          {filtered.filter((m) => m.result === "loss").length} L
+        </span>
+        {result === "all" && (
+          <>
+            {" "}
+            /{" "}
+            <span className="font-bold text-mist">
+              {filtered.filter((m) => m.result === "draw").length} D
+            </span>
+          </>
+        )}
       </p>
 
       {/* list */}
-      {filtered.length > 0 ? (
+      {rows.length === 0 ? (
+        <div className="glass rounded-2xl p-10 text-center text-mist">
+          No battles recorded yet — go hit the arena!
+        </div>
+      ) : filtered.length > 0 ? (
         <div className="space-y-3">
           {filtered.map((m) => (
-            <BattleLog key={m.id} match={m} />
+            <BattleLogRow key={m.idx} match={m} />
           ))}
         </div>
       ) : (

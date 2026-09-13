@@ -1,48 +1,38 @@
-import { createHmac, randomBytes, timingSafeEqual } from "crypto";
-
-type SessionPayload = { uid: string; exp: number };
+import { randomBytes } from "crypto";
+import { SignJWT, jwtVerify } from "jose";
 
 const SESSION_SECRET = process.env.SESSION_SECRET ?? randomBytes(32).toString("hex");
+const secret = new TextEncoder().encode(SESSION_SECRET);
+const ALGORITHM = "HS256";
 
-function sign(value: string): string {
-  return createHmac("sha256", SESSION_SECRET).update(value).digest("base64url");
+export type SessionPayload = { uid: string };
+
+export async function createSessionToken(
+  userID: string,
+  remember: boolean,
+): Promise<string> {
+  const exp = Math.floor(Date.now() / 1000) + (remember ? 30 : 7) * 24 * 60 * 60;
+
+  return await new SignJWT({ uid: userID })
+    .setProtectedHeader({ alg: ALGORITHM })
+    .setIssuedAt()
+    .setExpirationTime(exp)
+    .sign(secret);
 }
 
-export function createSessionToken(userID: string, remember: boolean): string {
-  const exp =
-    Math.floor(Date.now() / 1000) + (remember ? 30 : 7) * 24 * 60 * 60;
-  const payload = Buffer.from(
-    JSON.stringify({ uid: userID, exp } satisfies SessionPayload),
-  ).toString("base64url");
-  return `${payload}.${sign(payload)}`;
-}
-
-export function verifySessionToken(token: string | undefined): SessionPayload | null {
+export async function verifySessionToken(
+  token: string | undefined,
+): Promise<SessionPayload | null> {
   if (!token) return null;
 
-  const [payload, sig] = token.split(".");
-  if (!payload || !sig) return null;
-
-  const expected = Buffer.from(sign(payload));
-  const actual = Buffer.from(sig);
-  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
-    return null;
-  }
-
   try {
-    const data = JSON.parse(
-      Buffer.from(payload, "base64url").toString("utf8"),
-    ) as SessionPayload;
+    const { payload } = await jwtVerify(token, secret, {
+      algorithms: [ALGORITHM],
+    });
 
-    if (typeof data.uid !== "string" || typeof data.exp !== "number") {
-      return null;
-    }
+    if (typeof payload.uid !== "string") return null;
 
-    if (data.exp < Math.floor(Date.now() / 1000)) {
-      return null;
-    }
-
-    return data;
+    return { uid: payload.uid };
   } catch {
     return null;
   }

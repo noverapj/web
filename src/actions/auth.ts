@@ -11,7 +11,7 @@ export type AuthState = { error?: string; message?: string };
 
 async function setSessionCookie(userID: string, remember: boolean) {
   const cookieStore = await cookies();
-  cookieStore.set("novera_session", createSessionToken(userID, remember), {
+  cookieStore.set("novera_session", await createSessionToken(userID, remember), {
     httpOnly: true,
     sameSite: "lax",
     path: "/",

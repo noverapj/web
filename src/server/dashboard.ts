@@ -11,7 +11,7 @@ import {
 
 export async function getSessionUserID(): Promise<string | null> {
   const cookieStore = await cookies();
-  const session = verifySessionToken(cookieStore.get("novera_session")?.value);
+  const session = await verifySessionToken(cookieStore.get("novera_session")?.value);
   return session?.uid ?? null;
 }
 

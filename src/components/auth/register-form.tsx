@@ -214,11 +214,11 @@ export default function RegisterForm() {
           </span>
           <span className="text-xs leading-relaxed text-mist group-hover:text-white">
             I agree to the{" "}
-            <Link href="/forgot" className="font-bold text-ice hover:text-white">
+            <Link href="/tos" className="font-bold text-ice hover:text-white">
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link href="/forgot" className="font-bold text-ice hover:text-white">
+            <Link href="/privacy" className="font-bold text-ice hover:text-white">
               Privacy Policy
             </Link>
             .

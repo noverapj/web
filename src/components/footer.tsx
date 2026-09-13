@@ -21,8 +21,8 @@ const LINK_GROUPS = [
   {
     heading: "Legal",
     links: [
-      { label: "Terms of Service", href: "#" },
-      { label: "Privacy Policy", href: "#" },
+      { label: "Terms of Service", href: "/tos" },
+      { label: "Privacy Policy", href: "/privacy" },
     ],
   },
 ];

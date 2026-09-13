@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Chakra_Petch, Inter } from "next/font/google";
+import MikuCursor from "@/components/miku-cursor";
 import "./globals.css";
 
 const chakra = Chakra_Petch({
@@ -38,7 +39,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <MikuCursor />
+      </body>
     </html>
   );
 }

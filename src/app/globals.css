@@ -164,3 +164,10 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ---------- custom cursor ---------- */
+
+.miku-cursor,
+.miku-cursor * {
+  cursor: none !important;
+}
